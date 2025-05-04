@@ -25,7 +25,7 @@
 	"emptyState": {
 		"noTools": "No tools found",
 		"noResources": "No resources found",
-		"noErrors": "No errors found"
+		"noLogs": "No logs found"
 	},
 	"networkTimeout": {
 		"label": "Network Timeout",
