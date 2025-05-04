@@ -15,7 +15,9 @@ import { convertToSimpleMessages } from "../transform/simple-format"
 import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { XmlMatcher } from "../../utils/xml-matcher"
-import { DEEP_SEEK_DEFAULT_TEMPERATURE, DEFAULT_HEADERS, AZURE_AI_INFERENCE_PATH } from "./constants"
+import { DEFAULT_HEADERS, DEEP_SEEK_DEFAULT_TEMPERATURE } from "./constants"
+
+export const AZURE_AI_INFERENCE_PATH = "/models/chat/completions"
 
 export interface OpenAiHandlerOptions extends ApiHandlerOptions {}
 
@@ -33,12 +35,17 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		const urlHost = this._getUrlHost(this.options.openAiBaseUrl)
 		const isAzureOpenAi = urlHost === "azure.com" || urlHost.endsWith(".azure.com") || options.openAiUseAzure
 
+		const headers = {
+			...DEFAULT_HEADERS,
+			...(this.options.openAiHeaders || {}),
+		}
+
 		if (isAzureAiInference) {
 			// Azure AI Inference Service (e.g., for DeepSeek) uses a different path structure
 			this.client = new OpenAI({
 				baseURL,
 				apiKey,
-				defaultHeaders: DEFAULT_HEADERS,
+				defaultHeaders: headers,
 				defaultQuery: { "api-version": this.options.azureApiVersion || "2024-05-01-preview" },
 			})
 		} else if (isAzureOpenAi) {
@@ -48,19 +55,13 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 				baseURL,
 				apiKey,
 				apiVersion: this.options.azureApiVersion || azureOpenAiDefaultApiVersion,
-				defaultHeaders: {
-					...DEFAULT_HEADERS,
-					...(this.options.openAiHostHeader ? { Host: this.options.openAiHostHeader } : {}),
-				},
+				defaultHeaders: headers,
 			})
 		} else {
 			this.client = new OpenAI({
 				baseURL,
 				apiKey,
-				defaultHeaders: {
-					...DEFAULT_HEADERS,
-					...(this.options.openAiHostHeader ? { Host: this.options.openAiHostHeader } : {}),
-				},
+				defaultHeaders: headers,
 			})
 		}
 	}
@@ -72,7 +73,6 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		const enabledR1Format = this.options.openAiR1FormatEnabled ?? false
 		const enabledLegacyFormat = this.options.openAiLegacyFormat ?? false
 		const isAzureAiInference = this._isAzureAiInference(modelUrl)
-		const urlHost = this._getUrlHost(modelUrl)
 		const deepseekReasoner = modelId.includes("deepseek-reasoner") || enabledR1Format
 		const ark = modelUrl.includes(".volces.com")
 
@@ -225,7 +225,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		}
 	}
 
-	protected processUsageMetrics(usage: any, modelInfo?: ModelInfo): ApiStreamUsageChunk {
+	protected processUsageMetrics(usage: any, _modelInfo?: ModelInfo): ApiStreamUsageChunk {
 		return {
 			type: "usage",
 			inputTokens: usage?.prompt_tokens || 0,
@@ -360,7 +360,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 	}
 }
 
-export async function getOpenAiModels(baseUrl?: string, apiKey?: string, hostHeader?: string) {
+export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiHeaders?: Record<string, string>) {
 	try {
 		if (!baseUrl) {
 			return []
@@ -371,14 +371,13 @@ export async function getOpenAiModels(baseUrl?: string, apiKey?: string, hostHea
 		}
 
 		const config: Record<string, any> = {}
-		const headers: Record<string, string> = {}
+		const headers: Record<string, string> = {
+			...DEFAULT_HEADERS,
+			...(openAiHeaders || {}),
+		}
 
 		if (apiKey) {
 			headers["Authorization"] = `Bearer ${apiKey}`
-		}
-
-		if (hostHeader) {
-			headers["Host"] = hostHeader
 		}
 
 		if (Object.keys(headers).length > 0) {

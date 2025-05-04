@@ -6,17 +6,6 @@ const translations: Record<string, Record<string, any>> = {}
 // Determine if running in test environment (jest)
 const isTestEnv = process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID !== undefined
 
-// Detect environment - browser vs Node.js
-const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined"
-
-// Type for the VSCode process with optional resourcesPath
-type VSCodeProcess = NodeJS.Process & {
-	resourcesPath?: string | undefined
-}
-
-// Type cast process to custom interface with resourcesPath
-const vscodeProcess = process as VSCodeProcess
-
 // Load translations based on environment
 if (!isTestEnv) {
 	try {
