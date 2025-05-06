@@ -19,13 +19,11 @@
 	},
 	"tabs": {
 		"tools": "Herramientas",
-		"resources": "Recursos",
-		"errors": "Errores"
+		"resources": "Recursos"
 	},
 	"emptyState": {
 		"noTools": "No se encontraron herramientas",
-		"noResources": "No se encontraron recursos",
-		"noLogs": "No se encontraron registros"
+		"noResources": "No se encontraron recursos"
 	},
 	"networkTimeout": {
 		"label": "Tiempo de espera de red",

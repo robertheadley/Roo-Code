@@ -19,13 +19,11 @@
 	},
 	"tabs": {
 		"tools": "ツール",
-		"resources": "リソース",
-		"errors": "エラー"
+		"resources": "リソース"
 	},
 	"emptyState": {
 		"noTools": "ツールが見つかりません",
-		"noResources": "リソースが見つかりません",
-		"noLogs": "ログが見つかりません"
+		"noResources": "リソースが見つかりません"
 	},
 	"networkTimeout": {
 		"label": "ネットワークタイムアウト",

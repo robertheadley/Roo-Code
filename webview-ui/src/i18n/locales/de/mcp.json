@@ -19,13 +19,11 @@
 	},
 	"tabs": {
 		"tools": "Tools",
-		"resources": "Ressourcen",
-		"errors": "Fehler"
+		"resources": "Ressourcen"
 	},
 	"emptyState": {
 		"noTools": "Keine Tools gefunden",
-		"noResources": "Keine Ressourcen gefunden",
-		"noLogs": "Keine Logs gefunden"
+		"noResources": "Keine Ressourcen gefunden"
 	},
 	"networkTimeout": {
 		"label": "Netzwerk-Timeout",

@@ -20,13 +20,11 @@
 	},
 	"tabs": {
 		"tools": "Công cụ",
-		"resources": "Tài nguyên",
-		"errors": "Lỗi"
+		"resources": "Tài nguyên"
 	},
 	"emptyState": {
 		"noTools": "Không tìm thấy công cụ nào",
-		"noResources": "Không tìm thấy tài nguyên nào",
-		"noLogs": "Không tìm thấy log nào"
+		"noResources": "Không tìm thấy tài nguyên nào"
 	},
 	"networkTimeout": {
 		"label": "Thời gian chờ mạng",

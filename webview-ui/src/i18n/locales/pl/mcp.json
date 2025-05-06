@@ -19,13 +19,11 @@
 	},
 	"tabs": {
 		"tools": "Narzędzia",
-		"resources": "Zasoby",
-		"errors": "Błędy"
+		"resources": "Zasoby"
 	},
 	"emptyState": {
 		"noTools": "Nie znaleziono narzędzi",
-		"noResources": "Nie znaleziono zasobów",
-		"noLogs": "Nie znaleziono logów"
+		"noResources": "Nie znaleziono zasobów"
 	},
 	"networkTimeout": {
 		"label": "Limit czasu sieci",
