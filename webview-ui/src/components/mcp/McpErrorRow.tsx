@@ -1,43 +1,34 @@
+import { useMemo } from "react"
 import { formatRelative } from "date-fns"
-import { McpErrorEntry } from "../../../../src/shared/mcp"
+
+import type { McpErrorEntry } from "@roo/shared/mcp"
 
 type McpErrorRowProps = {
 	error: McpErrorEntry
 }
 
-const McpErrorRow = ({ error }: McpErrorRowProps) => {
-	const getErrorColor = (level: string) => {
-		switch (level) {
+export const McpErrorRow = ({ error }: McpErrorRowProps) => {
+	const color = useMemo(() => {
+		switch (error.level) {
 			case "error":
 				return "var(--vscode-testing-iconFailed)"
 			case "warn":
 				return "var(--vscode-charts-yellow)"
 			case "info":
 				return "var(--vscode-testing-iconPassed)"
-			default:
-				return "var(--vscode-testing-iconFailed)"
 		}
-	}
+	}, [error.level])
 
 	return (
 		<div
-			style={{
-				padding: "8px",
-				borderLeft: `3px solid ${getErrorColor(error.level)}`,
-				background: "var(--vscode-textCodeBlock-background)",
-				borderRadius: "4px",
-				fontSize: "13px",
-			}}>
-			<div style={{ marginBottom: "4px", color: getErrorColor(error.level) }}>{error.message}</div>
-			<div
-				style={{
-					fontSize: "11px",
-					color: "var(--vscode-descriptionForeground)",
-				}}>
+			className="p-2 rounded bg-vscode-textCodeBlock-background text-sm"
+			style={{ borderLeft: `3px solid ${color}` }}>
+			<div className="mb-1" style={{ color }}>
+				{error.message}
+			</div>
+			<div className="text-xs text-vscode-descriptionForeground">
 				{formatRelative(error.timestamp, new Date())}
 			</div>
 		</div>
 	)
 }
-
-export default McpErrorRow

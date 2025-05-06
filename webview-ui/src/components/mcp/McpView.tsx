@@ -20,7 +20,7 @@ import { Tab, TabContent, TabHeader } from "../common/Tab"
 import McpToolRow from "./McpToolRow"
 import McpResourceRow from "./McpResourceRow"
 import McpEnabledToggle from "./McpEnabledToggle"
-import McpErrorRow from "./McpErrorRow"
+import { McpErrorRow } from "./McpErrorRow"
 
 type McpViewProps = {
 	onDone: () => void
@@ -34,6 +34,7 @@ const McpView = ({ onDone }: McpViewProps) => {
 		enableMcpServerCreation,
 		setEnableMcpServerCreation,
 	} = useExtensionState()
+
 	const { t } = useAppTranslation()
 
 	return (
