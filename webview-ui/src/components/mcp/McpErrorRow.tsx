@@ -20,9 +20,7 @@ export const McpErrorRow = ({ error }: McpErrorRowProps) => {
 	}, [error.level])
 
 	return (
-		<div
-			className="p-2 rounded bg-vscode-textCodeBlock-background text-sm"
-			style={{ borderLeft: `3px solid ${color}` }}>
+		<div className="text-sm bg-vscode-textCodeBlock-background border-l-2 p-2" style={{ borderColor: color }}>
 			<div className="mb-1" style={{ color }}>
 				{error.message}
 			</div>
