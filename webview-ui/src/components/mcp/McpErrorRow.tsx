@@ -40,9 +40,8 @@ export const McpErrorRow = ({ error }: McpErrorRowProps) => {
 			case "warn":
 				return "var(--vscode-charts-yellow)"
 			case "info":
+				// Note: stdout messages are handled above via prefix detection
 				return "var(--vscode-testing-iconPassed)"
-			case "stdout": // Keep for backward compatibility
-				return "var(--vscode-foreground)"
 			default:
 				// For any unexpected value, default to error color
 				console.warn(`Unknown error level: ${error.level}`)
