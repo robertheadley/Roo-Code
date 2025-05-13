@@ -453,7 +453,8 @@ export class McpHub {
 						...(process.env.PATH ? { PATH: process.env.PATH } : {}),
 					},
 					stderr: "pipe",
-				})
+					// stdout is handled via child process directly
+				} as any)
 
 				// Set up stdio specific error handling
 				transport.onerror = async (error) => {
@@ -477,22 +478,39 @@ export class McpHub {
 				// transport.stderr is only available after the process has been started. However we can't start it separately from the .connect() call because it also starts the transport. And we can't place this after the connect call since we need to capture the stderr stream before the connection is established, in order to capture errors during the connection process.
 				// As a workaround, we start the transport ourselves, and then monkey-patch the start method to no-op so that .connect() doesn't try to start it again.
 				await transport.start()
+
+				// Handle stderr
 				const stderrStream = transport.stderr
 				if (stderrStream) {
 					stderrStream.on("data", async (data: Buffer) => {
 						const output = data.toString()
-						// Check if output contains INFO level log
-						const isInfoLog = /INFO/i.test(output)
+						// Check for informational messages (not errors)
+						// Common patterns for info messages that shouldn't be red:
+						// - Contains INFO level log
+						// - Server initialization messages like "MCP Server running on stdio"
+						// - Messages containing "running" which are typically startup logs
+						const isInfoOrStartupMessage =
+							/INFO/i.test(output) ||
+							/Server running/i.test(output) ||
+							/MCP Server/i.test(output) ||
+							/Documentation MCP Server/i.test(output) ||
+							/running on stdio/i.test(output)
 
-						if (isInfoLog) {
+						if (isInfoOrStartupMessage) {
 							// Log normal informational messages
 							console.log(`Server "${name}" info:`, output)
+							// Add to connection history with stdout level so they appear in white
+							const connection = this.findConnection(name, source)
+							if (connection) {
+								this.appendErrorMessage(connection, output, "stdout")
+								await this.notifyWebviewOfServerChanges()
+							}
 						} else {
 							// Treat as error log
 							console.error(`Server "${name}" stderr:`, output)
 							const connection = this.findConnection(name, source)
 							if (connection) {
-								this.appendErrorMessage(connection, output)
+								this.appendErrorMessage(connection, output, "error")
 								if (connection.server.status === "disconnected") {
 									await this.notifyWebviewOfServerChanges()
 								}
@@ -501,6 +519,23 @@ export class McpHub {
 					})
 				} else {
 					console.error(`No stderr stream for ${name}`)
+				}
+
+				// Handle stdout via child process if available
+				// @ts-ignore - Access internal property that's not in the type definitions
+				const childProcess = transport.process
+				if (childProcess && childProcess.stdout) {
+					childProcess.stdout.on("data", async (data: Buffer) => {
+						const output = data.toString()
+						console.log(`Server "${name}" stdout:`, output)
+						const connection = this.findConnection(name, source)
+						if (connection) {
+							this.appendErrorMessage(connection, output, "stdout")
+							await this.notifyWebviewOfServerChanges()
+						}
+					})
+				} else {
+					console.log(`Note: stdout capture not available for ${name}`)
 				}
 				transport.start = async () => {} // No-op now, .connect() won't fail
 			} else {
@@ -568,7 +603,11 @@ export class McpHub {
 		}
 	}
 
-	private appendErrorMessage(connection: McpConnection, error: string, level: "error" | "warn" | "info" = "error") {
+	private appendErrorMessage(
+		connection: McpConnection,
+		error: string,
+		level: "error" | "warn" | "info" | "stdout" = "error",
+	) {
 		const MAX_ERROR_LENGTH = 1000
 		const truncatedError =
 			error.length > MAX_ERROR_LENGTH
@@ -936,10 +975,25 @@ export class McpHub {
 		})
 
 		// Send sorted servers to webview
-		await this.providerRef.deref()?.postMessageToWebview({
-			type: "mcpServers",
-			mcpServers: sortedConnections.map((connection) => connection.server),
-		})
+		const provider = this.providerRef.deref()
+		if (provider) {
+			await provider.postMessageToWebview({
+				type: "mcpServers",
+				mcpServers: sortedConnections.map((connection) => connection.server),
+			})
+
+			// When MCP logs are updated, trigger a system prompt refresh
+			// by calling attemptApiRequest which will re-generate the prompt
+			console.log("MCP logs updated, triggering context refresh")
+
+			// Get the current Cline instance (Task)
+			const currentCline = provider.getCurrentCline()
+			if (currentCline) {
+				// Force the system prompt to be regenerated on the next API request
+				// by triggering a new state update
+				await provider.postStateToWebview()
+			}
+		}
 	}
 
 	public async toggleServerDisabled(

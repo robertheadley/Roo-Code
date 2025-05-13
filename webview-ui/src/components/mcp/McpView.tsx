@@ -332,8 +332,8 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 								{t("mcp:tabs.resources")} (
 								{[...(server.resourceTemplates || []), ...(server.resources || [])].length || 0})
 							</VSCodePanelTab>
-							<VSCodePanelTab id="errors">
-								{t("mcp:tabs.errors")} ({server.errorHistory?.length || 0})
+							<VSCodePanelTab id="console">
+								{t("mcp:tabs.console")} ({server.errorHistory?.length || 0})
 							</VSCodePanelTab>
 
 							<VSCodePanelView id="tools-view">
@@ -378,7 +378,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 								)}
 							</VSCodePanelView>
 
-							<VSCodePanelView id="errors-view">
+							<VSCodePanelView id="console-view">
 								{server.errorHistory && server.errorHistory.length > 0 ? (
 									<div
 										style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
@@ -390,7 +390,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 									</div>
 								) : (
 									<div style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
-										{t("mcp:emptyState.noErrors")}
+										{t("mcp:emptyState.noLogs")}
 									</div>
 								)}
 							</VSCodePanelView>
