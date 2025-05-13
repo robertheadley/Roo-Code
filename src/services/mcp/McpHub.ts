@@ -992,11 +992,13 @@ export class McpHub {
 			console.log("MCP logs updated, triggering context refresh")
 
 			// Get the current Cline instance (Task)
-			const currentCline = provider.getCurrentCline()
-			if (currentCline) {
-				// Force the system prompt to be regenerated on the next API request
-				// by triggering a new state update
-				await provider.postStateToWebview()
+			if (provider && typeof provider.getCurrentCline === "function") {
+				const currentCline = provider.getCurrentCline()
+				if (currentCline && typeof provider.postStateToWebview === "function") {
+					// Force the system prompt to be regenerated on the next API request
+					// by triggering a new state update
+					await provider.postStateToWebview()
+				}
 			}
 		}
 	}
