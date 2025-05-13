@@ -607,7 +607,7 @@ export class McpHub {
 		connection: McpConnection,
 		error: string,
 		level: "error" | "warn" | "info" | "stdout" = "error",
-	) {
+	): void {
 		const MAX_ERROR_LENGTH = 1000
 		const truncatedError =
 			error.length > MAX_ERROR_LENGTH
