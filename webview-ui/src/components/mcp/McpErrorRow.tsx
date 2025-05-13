@@ -12,6 +12,12 @@ export const McpErrorRow = ({ error }: McpErrorRowProps) => {
 		// Add debugging to log what level is coming in
 		console.log(`McpErrorRow level: ${error.level} for message: ${error.message.substring(0, 20)}...`)
 
+		// First check for explicitly prefixed stdout messages
+		if (error.level === "info" && error.message.startsWith("[STDOUT]")) {
+			// Use regular foreground color for stdout messages
+			return "var(--vscode-foreground)"
+		}
+
 		// Check if this is a stdout message (mapped to info in backend)
 		// Common patterns for stdout messages
 		const isStdoutMessage =
@@ -44,10 +50,15 @@ export const McpErrorRow = ({ error }: McpErrorRowProps) => {
 		}
 	}, [error.level, error.message])
 
+	// Strip [STDOUT] prefix from the message for cleaner display
+	const displayMessage = error.message.startsWith("[STDOUT]")
+		? error.message.substring("[STDOUT]".length).trim()
+		: error.message
+
 	return (
 		<div className="text-sm bg-vscode-textCodeBlock-background border-l-2 p-2" style={{ borderColor: color }}>
 			<div className="mb-1" style={{ color }}>
-				{error.message}
+				{displayMessage}
 			</div>
 			<div className="text-xs text-vscode-descriptionForeground">
 				{formatRelative(error.timestamp, new Date())}

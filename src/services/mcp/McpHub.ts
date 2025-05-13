@@ -499,10 +499,12 @@ export class McpHub {
 						if (isInfoOrStartupMessage) {
 							// Log normal informational messages
 							console.log(`Server "${name}" info:`, output)
-							// Add to connection history with stdout level so they appear in white
+							// Tag the message with stdout_info so we can identify it in the UI
+							// but map it to "info" level for type compatibility
 							const connection = this.findConnection(name, source)
 							if (connection) {
-								this.appendErrorMessage(connection, output, "stdout")
+								// Add a prefix to identify this as a stdout message that's been mapped to info
+								this.appendErrorMessage(connection, `[STDOUT] ${output}`, "info")
 								await this.notifyWebviewOfServerChanges()
 							}
 						} else {
@@ -530,7 +532,8 @@ export class McpHub {
 						console.log(`Server "${name}" stdout:`, output)
 						const connection = this.findConnection(name, source)
 						if (connection) {
-							this.appendErrorMessage(connection, output, "stdout")
+							// Add a prefix to identify this as a stdout message that's been mapped to info
+							this.appendErrorMessage(connection, `[STDOUT] ${output}`, "info")
 							await this.notifyWebviewOfServerChanges()
 						}
 					})
@@ -619,14 +622,14 @@ export class McpHub {
 			connection.server.errorHistory = []
 		}
 
-		// Map "stdout" to "info" to avoid TypeScript errors
-		// while still allowing them to be displayed differently in the UI
-		const mappedLevel = level === "stdout" ? "info" : level
+		// Note: We no longer need to map "stdout" to "info" here
+		// as we're now adding the [STDOUT] prefix to the message itself
+		// and directly using "info" level in the calling code
 
 		connection.server.errorHistory.push({
 			message: truncatedError,
 			timestamp: Date.now(),
-			level: mappedLevel,
+			level: level,
 		})
 
 		// Keep only the last 100 errors
