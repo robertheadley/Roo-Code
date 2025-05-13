@@ -619,10 +619,14 @@ export class McpHub {
 			connection.server.errorHistory = []
 		}
 
+		// Map "stdout" to "info" to avoid TypeScript errors
+		// while still allowing them to be displayed differently in the UI
+		const mappedLevel = level === "stdout" ? "info" : level
+
 		connection.server.errorHistory.push({
 			message: truncatedError,
 			timestamp: Date.now(),
-			level: level as "error" | "warn" | "info" | "stdout",
+			level: mappedLevel,
 		})
 
 		// Keep only the last 100 errors
