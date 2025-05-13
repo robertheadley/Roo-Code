@@ -622,7 +622,7 @@ export class McpHub {
 		connection.server.errorHistory.push({
 			message: truncatedError,
 			timestamp: Date.now(),
-			level,
+			level: level as "error" | "warn" | "info" | "stdout",
 		})
 
 		// Keep only the last 100 errors
