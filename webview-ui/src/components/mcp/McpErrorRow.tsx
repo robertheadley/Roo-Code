@@ -10,7 +10,6 @@ type McpErrorRowProps = {
 export const McpErrorRow = ({ error }: McpErrorRowProps) => {
 	const color = useMemo(() => {
 		// Add debugging to log what level is coming in
-		console.log(`McpErrorRow level: ${error.level} for message: ${error.message.substring(0, 20)}...`)
 
 		// First check for explicitly prefixed stdout messages
 		if (error.level === "info" && error.message.startsWith("[STDOUT]")) {
